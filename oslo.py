@@ -14,7 +14,7 @@ class Oslo:
     """
     
     def __init__(self, L_size):
-        self.state = np.zeros(L_size) # state is array of slopes
+        self.state = np.zeros(L_size,dtype='uint') # state is array of slopes
         self.thresholds = np.random.randint(1, 3, size=L_size) # random slopes
     
     def drive(self):
@@ -24,6 +24,7 @@ class Oslo:
     def relax_site(self, site):
         """Relax site labelled as (integer) 0 <= 'site' < L_size"""
         if self.state[site] <= self.thresholds[site]:
+            print("no relaxation")
             return False # already stable
         
         if site == 0: # left boundary
@@ -40,7 +41,7 @@ class Oslo:
             # no right site to the rightmost
             
         # choose new threshold for relaxed site
-        self.state[site] = np.random.randint(1, 3) # uniform for now
+        self.thresholds[site] = np.random.randint(1, 3) # uniform for now
         
         return True # relaxed that site
     

@@ -21,6 +21,27 @@ class TestOslo(unittest.TestCase):
     def test_drive(self):
         self.model3.drive()
         self.assertTrue(np.allclose([self.model3.state],[1.0,0.0,0.0]))
-
+        
+    def test_relax_site_left(self):
+        model = oslo.Oslo(3)
+        model.state = np.array([1,1,1])
+        model.thresholds = np.array([1,1,1])
+        model.drive()
+        model.relax_site(0)
+        self.assertTrue(np.allclose(model.state,np.array([0, 2, 1])))
+    def test_relax_site_right(self):
+        model = oslo.Oslo(3)
+        model.state = np.array([1,1,2])
+        model.thresholds = np.array([1,1,1])
+        model.relax_site(2)
+        self.assertTrue(np.allclose(model.state,np.array([1, 2, 1])))
+        
+    def test_relax_site_bulk(self):
+        model = oslo.Oslo(3)
+        model.state = np.array([1,2,1])
+        model.thresholds = np.array([1,1,1])
+        model.relax_site(1)
+        self.assertTrue(np.allclose(model.state,np.array([2, 0, 2])))
+        
 if __name__ == '__main__':
     unittest.main()

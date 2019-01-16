@@ -64,8 +64,4 @@ class Oslo:
     
 if __name__ == "__main__":
     #tests
-    model = iter(Oslo(8))
-    next(model)
-    next(model)
-    next(model)
-    print(model)
+    pass

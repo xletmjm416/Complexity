@@ -15,8 +15,7 @@ class Oslo:
     
     def __init__(self, L_size):
         self.state = np.zeros(L_size,dtype='uint') # state is array of slopes
-        self.thresholds = np.random.randint(1, 3, size=L_size) # random slopes
-        self.counter = 0
+        self.thresholds = np.random.randint(1, 3, size=L_size) # random slopes0
     
     def drive(self):
         """Drive the system at the left boundary"""
@@ -49,6 +48,12 @@ class Oslo:
         return self
     
     def relax_recursively(self, start_site):
+        """Recursive relaxation: if a site relaxes, it relaxes the 
+        neighbouring sites in the same manner. Counts up number of 
+        relaxations too. It is the simplest guarantee to make fewer scans 
+        than a sweep, because it relaxes all sites that need it and checks 
+        all the ones that could be relaxed but did not, covering all 
+        possibilities without excessive checks."""
         relaxations = 0
         if self.relax_site(start_site):
             relaxations = 1
@@ -67,8 +72,8 @@ class Oslo:
     
 if __name__ == "__main__":
     #tests
-    model = Oslo(8)
+    model = Oslo(512)
     iterator = iter(model)
-    for i in range(200):
+    for i in range(2000):
         print(next(iterator))
     

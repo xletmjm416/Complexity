@@ -25,10 +25,8 @@ class Oslo:
     def relax_site(self, site):
         """Relax site labelled as (integer) 0 <= 'site' < L_size"""
         if self.state[site] <= self.thresholds[site]:
-            print("no relaxation")
             return False # already stable
         
-        print("relaxing " + str(site))
         if site == 0: # left boundary
             # not updating to the left
             self.state[site] = self.state[site] - 2
@@ -62,7 +60,7 @@ class Oslo:
     
     def __next__(self):
         self.drive()
-        print(self.relax_recursively(0))
+        return self.relax_recursively(0)
     
     def __str__(self):
         return str(self.state)
@@ -72,6 +70,5 @@ if __name__ == "__main__":
     model = Oslo(8)
     iterator = iter(model)
     for i in range(200):
-        next(iterator)
-        print("---------------------stable------------------------")
+        print(next(iterator))
     

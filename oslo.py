@@ -74,6 +74,9 @@ if __name__ == "__main__":
     #tests
     model = Oslo(512)
     iterator = iter(model)
-    for i in range(2000):
-        print(next(iterator))
+    table = list()
+    for i in range(20000):
+        table.append(next(iterator))
+        
+    plt.hist(table)
     

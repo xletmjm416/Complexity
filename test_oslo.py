@@ -12,6 +12,7 @@ import oslo
 
 class TestOslo(unittest.TestCase):
     def setUp(self):
+        """Called evey time before all tests"""
         self.model3 = oslo.Oslo(3)
         self.model8 = oslo.Oslo(8)
     

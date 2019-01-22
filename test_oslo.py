@@ -31,7 +31,7 @@ class TestOslo(unittest.TestCase):
         self.model3.thresholds = np.array([1,1,1])
         self.model3.drive()
         self.model3.relax_site(0)
-        self.assertTrue(np.allclose(self.model3.state,np.array([0, 2, 1])))
+        self.assertTrue(np.allclose(self.model3.state,np.array( [0, 2, 1])))
     
     def test_relax_site_right(self):
         """Check relaxing edge site from which the grains leave the system. """
@@ -46,6 +46,11 @@ class TestOslo(unittest.TestCase):
         self.model3.thresholds = np.array([1,1,1])
         self.model3.relax_site(1)
         self.assertTrue(np.allclose(self.model3.state,np.array([2, 0, 2])))
+    
+    def test_heights_arr(self):
+        """The heights are correct with a hand-calculated example"""
+        self.model8.state = np.array([2,1,2,0,0,1,0,2])
+        self.assertTrue(np.allclose(self.model8.heights_arr(),np.array([8,6,5,3,3,3,2,2])))
         
 if __name__ == '__main__':
     unittest.main()

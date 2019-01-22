@@ -7,6 +7,7 @@ Implementation of the Oslo model.
 """
 
 import numpy as np
+from matplotlib import pyplot as plt
 
 class Oslo:
     """Oslo model class, implementing four states of the algorithm
@@ -63,6 +64,14 @@ class Oslo:
                 relaxations = relaxations + self.relax_recursively(start_site + 1)    
         return relaxations
     
+    def height(self, site):
+        """Returns height of a site"""
+        return np.sum(self.state[site:])
+    
+    def heights_arr(self):
+        """Return array of heights"""
+        return np.array([self.height(site) for site in range(len(self.state))])
+    
     def __next__(self):
         self.drive()
         return self.relax_recursively(0)
@@ -72,10 +81,10 @@ class Oslo:
     
 if __name__ == "__main__":
     #tests
-    model = Oslo(512)
+    model = Oslo(8)
     iterator = iter(model)
     table = list()
-    for i in range(20000):
+    for i in range(1000):
         table.append(next(iterator))
         
     plt.hist(table)

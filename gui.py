@@ -17,7 +17,7 @@ class Application(tk.Frame):
         #self.plotframe = PlotFrame(self)
         #self.plotframe.pack(side="top")
         
-        self.modelframe = ModelFrame(self)
+        self.modelframe = ModelFrameHeights(self)
         self.modelframe.pack(side="top")
         
         #self.refresh = tk.Button(self, text="Refresh", command=self.plotframe.refreshFigure)
@@ -31,7 +31,7 @@ class Application(tk.Frame):
         
         self.pack()
 
-class ModelFrame(tk.Frame):
+class ModelFrameSlopes(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
         L_size = 8
@@ -48,6 +48,29 @@ class ModelFrame(tk.Frame):
         x = range(len(self.model.state))
         y = self.model.state
         next(self.model)
+        self.contents.set_data(x, y)
+        ax = self.canvas.figure.axes[0]
+        ax.set_xlim(0, len(self.model.state))
+        ax.set_ylim(0, max(y))
+        self.canvas.draw()
+        
+class ModelFrameHeights(tk.Frame):
+    def __init__(self, master=None):
+        super().__init__(master)
+        L_size = 8
+        self.model = oslo.Oslo(L_size)
+        self.fig = plt.Figure(figsize=(6, 6), dpi=100)
+        self.subplot = self.fig.add_subplot(111)
+        self.contents, = self.subplot.plot(range(len(self.model.state)), self.model.heights_arr())
+        self.canvas = FigureCanvasTkAgg(self.fig, self)
+        self.canvas.draw()
+        self.canvas.get_tk_widget().pack()
+        self.pack()
+        
+    def drive(self):
+        x = range(len(self.model.state))
+        y = self.model.heights_arr()
+        print(next(self.model))
         self.contents.set_data(x, y)
         ax = self.canvas.figure.axes[0]
         ax.set_xlim(0, len(self.model.state))

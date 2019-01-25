@@ -24,13 +24,17 @@ class Application(tk.Frame):
         self.grains_count_display = tk.Entry(self, textvariable=self.grains_count)
         self.grains_count_display.pack(side="top")
         
+        self.last_avalanche = tk.IntVar()
+        self.last_avalanche_display = tk.Entry(self, textvariable=self.last_avalanche)
+        self.last_avalanche_display.pack(side="top")
+        
         self.quit = tk.Button(self, text="Quit", command=self.master.destroy)
         self.quit.pack(side="bottom")
         
         self.pack()
     
     def drive_event(self):
-        self.modelframe.drive()
+        self.last_avalanche.set(self.modelframe.drive())
         self.grains_count.set(self.grains_count.get() + 1)
         return
 
@@ -59,12 +63,13 @@ class ModelFrame(tk.Frame):
         else:
             raise Exception("inappropriate visualisation mode; only 'heights' \
                             or 'slopes' are allowed")
-        print(next(self.model))
+        avalanche_size = next(self.model)
         self.contents.set_data(x, y)
         ax = self.canvas.figure.axes[0]
         ax.set_xlim(0, self.model.L_size)
         ax.set_ylim(0, max(y))
         self.canvas.draw()
+        return avalanche_size
         
 root = tk.Tk()
 app = Application(master=root)

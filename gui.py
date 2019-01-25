@@ -23,13 +23,22 @@ class Application(tk.Frame):
         #self.refresh = tk.Button(self, text="Refresh", command=self.plotframe.refreshFigure)
         #self.refresh.pack(side="bottom")
         
-        self.drive = tk.Button(self, text="Drive", command=self.modelframe.drive)
+        self.drive = tk.Button(self, text="Drive", command=self.drive_event)
         self.drive.pack(side="bottom")
+        
+        self.grains_count = tk.IntVar()
+        self.grains_count_display = tk.Entry(self, textvariable=self.grains_count)
+        self.grains_count_display.pack(side="top")
         
         self.quit = tk.Button(self, text="Quit", command=self.master.destroy)
         self.quit.pack(side="bottom")
         
         self.pack()
+    
+    def drive_event(self):
+        self.modelframe.drive()
+        self.grains_count.set(self.grains_count.get() + 1)
+        return
 
 class ModelFrameSlopes(tk.Frame):
     def __init__(self, master=None):

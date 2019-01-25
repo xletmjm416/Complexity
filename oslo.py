@@ -17,11 +17,13 @@ class Oslo:
     def __init__(self, L_size):
         self.L_size = L_size
         self.state = np.zeros(L_size,dtype='uint') # state is array of slopes
-        self.thresholds = np.random.randint(1, 3, size=L_size) # random slopes0
+        self.thresholds = np.random.randint(1, 3, size=L_size) # random slopes
+        self.total_height = 0 # height of the pile
     
     def drive(self):
         """Drive the system at the left boundary"""
         self.state[0] = self.state[0] + 1
+        self.total_height += 1
     
     def relax_site(self, site):
         """Relax site labelled as (integer) 0 <= 'site' < L_size. Returns True
@@ -34,11 +36,12 @@ class Oslo:
             # not updating to the left
             self.state[site] = self.state[site] - 2
             self.state[site+1] = self.state[site+1] + 1
-        if site > 0 and site < len(self.state)-1: #bulk site
+            self.total_height -= 1
+        if site > 0 and site < self.L_size-1: #bulk site
             self.state[site-1] = self.state[site-1] + 1
             self.state[site] = self.state[site] - 2
             self.state[site+1] = self.state[site+1] + 1
-        if site == len(self.state)-1: #right site site
+        if site == self.L_size-1: #right site site
             self.state[site-1] = self.state[site-1] + 1
             self.state[site] = self.state[site] - 1 # different here
             # no right site to the rightmost
@@ -65,17 +68,21 @@ class Oslo:
             relaxations = 1
             if start_site > 0:
                 relaxations = relaxations + self._relax_recursively(start_site - 1)
-            if start_site < len(self.state)-1:
+            if start_site < self.L_size-1:
                 relaxations = relaxations + self._relax_recursively(start_site + 1)    
         return relaxations
     
     def height(self, site):
-        """Returns height of a site"""
-        return np.sum(self.state[site:])
+        """Returns height of a site. For zero site, we track it with total_heigth
+        variable"""
+        if site == 0:
+            return self.total_height
+        else:
+            return np.sum(self.state[site:])
     
     def heights_arr(self):
         """Return array of heights"""
-        return np.array([self.height(site) for site in range(len(self.state))])
+        return np.array([self.height(site) for site in range(self.L_size)])
     
     def __next__(self):
         """Make an iteration of Olso model algorithm"""
@@ -91,7 +98,7 @@ class Oslo:
 if __name__ == "__main__":
     L_size = 32
     model = Oslo(L_size)
-    T_total = 5000
+    T_total = 3000
     iterator = iter(model)
     avalanche_size_arr = list()
     height_time = list()
@@ -111,7 +118,7 @@ if __name__ == "__main__":
     ax1.set_ylabel("frequency")
     
     ax2.plot(height_time)
-    ax2.hlines(53.9,0,T_total)
+    ax2.hlines(53.9, 0, T_total)
     ax2.set_xlabel("number of grains added")
     ax2.set_ylabel("height of the pile")
     

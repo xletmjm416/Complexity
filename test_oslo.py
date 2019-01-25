@@ -12,7 +12,7 @@ import oslo
 
 class TestOslo(unittest.TestCase):
     def setUp(self):
-        """Called evey time before all tests"""
+        """Called every time before all tests"""
         self.model3 = oslo.Oslo(3)
         self.model8 = oslo.Oslo(8)
     
@@ -50,8 +50,41 @@ class TestOslo(unittest.TestCase):
     
     def test_heights_arr(self):
         """The heights are correct with a hand-calculated example"""
-        self.model8.state = np.array([2,1,2,0,0,1,0,2])
+        self.model8.state = np.array([2,1,2,0,0,1,0,2]) # slopes
+        self.model8.total_height = 8 # this is tracked in a different way than bulk
         self.assertTrue(np.allclose(self.model8.heights_arr(),np.array([8,6,5,3,3,3,2,2])))
+    
+    def test_heights_from_script_L16(self):
+        """According to the script, in the long term, the average height of the
+        pile for system of size L=16 should be about 26.5"""
+        avg = self.height_testing_meta(16, test_time=3000)
+        self.assertTrue(np.abs(avg - 26.5) < 1)
         
+    def test_heights_from_script_L32(self):
+        """According to the script, in the long term, the average height of the
+        pile for system of size L=32 should be about 53.9"""
+        avg = self.height_testing_meta(32, test_time=3000)
+        self.assertTrue(np.abs(avg - 53.9) < 1)
+    
+    def height_testing_meta(self, L_size, test_time=5000):
+        """According to the script, in the long term, the average height of the
+        pile for system of size L=16 should be about 26.5, whereas for L=32, 
+        it should be 53.9.
+        'test_time' specifies how many time units the model should run for."""
+        if test_time < 2000:
+            raise Exception("Too short test time. \
+                            I suggest test_time > 3000 for small systems.")
+        model = iter(oslo.Oslo(L_size))
+        height_time_arr = list()
+        for i in range(test_time):
+            next(model)
+            height_time_arr.append(model.height(0))
+        mean1 = np.mean(height_time_arr[-2000:-1000])
+        mean2 = np.mean(height_time_arr[-1000:])
+        if np.abs(mean1 - mean2) < 0.05* mean1 \
+        and np.abs(mean1 - mean2) < 0.05*mean2:
+            # difference is smaller than 5% of either; converged
+            print("height test converged with height", mean2)
+            return mean2
 if __name__ == '__main__':
     unittest.main()

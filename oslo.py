@@ -15,6 +15,7 @@ class Oslo:
     """
     
     def __init__(self, L_size):
+        self.L_size = L_size
         self.state = np.zeros(L_size,dtype='uint') # state is array of slopes
         self.thresholds = np.random.randint(1, 3, size=L_size) # random slopes0
     

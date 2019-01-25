@@ -38,21 +38,20 @@ class ModelFrame(tk.Frame):
     def __init__(self, master=None, L_size=8, mode="heights"):
         """mode = {heights, slopes}"""
         super().__init__(master)
-        self.L_size = L_size
         self.model = oslo.Oslo(L_size)
         self.mode = mode
         
         #plotting facilities
         self.fig = plt.Figure(figsize=(6, 6), dpi=100)
         self.subplot = self.fig.add_subplot(111)
-        self.contents, = self.subplot.plot(range(len(self.model.state)), \
-                                           self.model.heights_arr())
+        self.contents, = self.subplot.plot(range(self.model.L_size), \
+                                           np.zeros(self.model.L_size))
         self.canvas = FigureCanvasTkAgg(self.fig, self)
         self.canvas.draw()
         self.canvas.get_tk_widget().pack()
         
     def drive(self):
-        x = range(self.L_size)
+        x = range(self.model.L_size)
         if self.mode == "heights":
             y = self.model.heights_arr()
         elif self.mode == "slopes":
@@ -63,7 +62,7 @@ class ModelFrame(tk.Frame):
         print(next(self.model))
         self.contents.set_data(x, y)
         ax = self.canvas.figure.axes[0]
-        ax.set_xlim(0, self.L_size)
+        ax.set_xlim(0, self.model.L_size)
         ax.set_ylim(0, max(y))
         self.canvas.draw()
         

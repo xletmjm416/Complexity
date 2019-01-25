@@ -8,6 +8,8 @@ Implementation of the Oslo model.
 
 import numpy as np
 from matplotlib import pyplot as plt
+import pickle
+import os
 
 class Oslo:
     """Oslo model class, implementing four states of the algorithm
@@ -19,6 +21,7 @@ class Oslo:
         self.state = np.zeros(L_size,dtype='uint') # state is array of slopes
         self.thresholds = np.random.randint(1, 3, size=L_size) # random slopes
         self.total_height = 0 # height of the pile
+        self.overflow = False # flag whether the system is saturated
     
     def drive(self):
         """Drive the system at the left boundary"""
@@ -44,6 +47,7 @@ class Oslo:
         if site == self.L_size-1: #right site site
             self.state[site-1] = self.state[site-1] + 1
             self.state[site] = self.state[site] - 1 # different here
+            self.overflow = True # set the overflow flag that we reached the right site
             # no right site to the rightmost
             
         # choose new threshold for relaxed site
@@ -98,28 +102,24 @@ class Oslo:
 if __name__ == "__main__":
     L_size = 32
     model = Oslo(L_size)
-    T_total = 3000
+    T_total = 2000
     iterator = iter(model)
     avalanche_size_arr = list()
-    height_time = list()
+    height_time_arr = list()
+    overflow_reached = 0
     for i in range(T_total):
         avalanche_size = next(iterator)
         avalanche_size_arr.append(avalanche_size)
-        height_time.append(iterator.height(0))
-        
-    histogram = np.histogram(avalanche_size_arr, bins = range(0,max(avalanche_size_arr)))
-    avalanche_size_bins = histogram[1][:-1]
-    avalanche_size_histogram = histogram[0]
-    fig, axes = plt.subplots(nrows=2, ncols=1)
-    ax1, ax2 = axes
+        height_time_arr.append(iterator.height(0))
+        if iterator.overflow and overflow_reached == 0:
+            overflow_reached = i
     
-    ax1.loglog(avalanche_size_bins, avalanche_size_histogram, '.')
-    ax1.set_xlabel("avalanche size s")
-    ax1.set_ylabel("frequency")
+    filename = "./data/" + str(L_size) + "-" + str(T_total) + ".dat"
+    if os.path.exists(filename):
+        if input("file with the name exists; overwrite? y/n").lower() == 'y':
+            with open(filename, 'wb+') as file:
+                pickle.dump([avalanche_size_arr, height_time_arr, overflow_reached], file)            
+    else:
+        with open(filename, 'wb+') as file:
+            pickle.dump([avalanche_size_arr, height_time_arr, overflow_reached], file)
     
-    ax2.plot(height_time)
-    ax2.hlines(53.9, 0, T_total)
-    ax2.set_xlabel("number of grains added")
-    ax2.set_ylabel("height of the pile")
-    
-    fig.tight_layout()

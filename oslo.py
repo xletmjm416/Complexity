@@ -139,26 +139,32 @@ class Oslo:
         return self
     
 if __name__ == "__main__":
-    L_size = 32
-    model = Oslo(L_size)
-    T_total = 20000
-    iterator = iter(model)
+    L_size = 256
+    model = iter(Oslo(L_size))
+    T_total = int(1000*(L_size/16.)**2)
     avalanche_size_arr = list()
     height_time_arr = list()
-    overflow_reached = 0
+    twos_arr = list()
+    ones_arr = list()
+    zeros_arr = list()
+    crossing_time = 0
+    
     for i in range(T_total):
-        avalanche_size = next(iterator)
+        avalanche_size = next(model)
         avalanche_size_arr.append(avalanche_size)
-        height_time_arr.append(iterator.height(0))
-        if iterator.overflow and overflow_reached == 0:
-            overflow_reached = i
-    """
-    filename = "./data/" + str(L_size) + "-" + str(T_total) + ".dat"
+        height_time_arr.append(model.height(0))
+        if model.overflow and crossing_time == 0:
+            crossing_time = i
+        twos_arr.append(np.count_nonzero(model.state==2))
+        ones_arr.append(np.count_nonzero(model.state==1))
+        zeros_arr.append(np.count_nonzero(model.state==0))
+        print(i/T_total)
+        
+    filename = "./data/" + str(L_size) + "-" + str(T_total) + "-2.dat"
     if os.path.exists(filename):
         if input("file with the name exists; overwrite? y/n").lower() == 'y':
             with open(filename, 'wb+') as file:
-                pickle.dump([avalanche_size_arr, height_time_arr, overflow_reached], file)            
+                pickle.dump([avalanche_size_arr, height_time_arr, crossing_time, twos_arr, ones_arr, zeros_arr], file)            
     else:
         with open(filename, 'wb+') as file:
-            pickle.dump([avalanche_size_arr, height_time_arr, overflow_reached], file)
-    """
+            pickle.dump([avalanche_size_arr, height_time_arr, crossing_time, twos_arr, ones_arr, zeros_arr], file)

@@ -7,6 +7,7 @@ Created on Fri Jan 25 19:55:23 2019
 
 import pickle
 import numpy as np
+from matplotlib import pyplot as plt
 
 L_size = 32
 T_total = 2000

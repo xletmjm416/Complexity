@@ -40,15 +40,14 @@ class Oslo:
             self.state[site] = self.state[site] - 2
             self.state[site+1] = self.state[site+1] + 1
             self.total_height -= 1
-        if site > 0 and site < self.L_size-1: #bulk site
-            self.state[site-1] = self.state[site-1] + 1
-            self.state[site] = self.state[site] - 2
-            self.state[site+1] = self.state[site+1] + 1
-        if site == self.L_size-1: #right site site
+        elif site == self.L_size-1:
             self.state[site-1] = self.state[site-1] + 1
             self.state[site] = self.state[site] - 1 # different here
             self.overflow = True # set the overflow flag that we reached the right site
-            # no right site to the rightmost
+        else:
+            self.state[site-1] = self.state[site-1] + 1
+            self.state[site] = self.state[site] - 2
+            self.state[site+1] = self.state[site+1] + 1
             
         # choose new threshold for relaxed site
         self.thresholds[site] = np.random.randint(1, 3) # uniform for now
@@ -58,7 +57,7 @@ class Oslo:
     def relax_system(self):
         """Relax the whole system; this is a function that hides the relaxation 
         implementation under the hood"""
-        return self._relax_recursively(0)
+        return self._relax_iteratively()
     
     def _relax_recursively(self, start_site):
         """Recursive relaxation: if a site relaxes, it relaxes the 
@@ -76,6 +75,46 @@ class Oslo:
                 relaxations = relaxations + self._relax_recursively(start_site + 1)    
         return relaxations
     
+    def _relax_and_point(self, site):
+        """Relax a site and tell which should be relaxed next. For use only in 
+        self._relax_iteratively."""
+        if self.relax_site(site):
+            if site == 0:
+                if self.state[site+1] > self.thresholds[site+1]:
+                    return site+1
+                else:
+                    return None
+            elif site == self.L_size-1:
+                if self.state[site-1] > self.thresholds[site-1]:
+                    return site-1
+                else:
+                    return None
+            else:
+                # bulk site
+                if self.state[site-1] > self.thresholds[site-1]:
+                    return site-1 # point to prevous site
+                elif self.state[site+1] > self.thresholds[site+1]:
+                    return site+1
+                else:
+                    return None
+        else:
+            return None
+            
+    def _relax_iteratively(self):
+        """Similarly to recusive relaxation, but instead relies on returing the
+        index of a site that needs to be relaxed next"""
+        
+        relaxations = 0
+        next_relax = 0
+        while next_relax < self.L_size:
+            ret = self._relax_and_point(next_relax)
+            if ret is None:
+                next_relax += 1
+            else:
+                next_relax = ret
+                relaxations += 1
+        return relaxations
+        
     def height(self, site):
         """Returns height of a site. For zero site, we track it with total_heigth
         variable"""
@@ -102,7 +141,7 @@ class Oslo:
 if __name__ == "__main__":
     L_size = 32
     model = Oslo(L_size)
-    T_total = 2000
+    T_total = 20000
     iterator = iter(model)
     avalanche_size_arr = list()
     height_time_arr = list()
@@ -113,7 +152,7 @@ if __name__ == "__main__":
         height_time_arr.append(iterator.height(0))
         if iterator.overflow and overflow_reached == 0:
             overflow_reached = i
-    
+    """
     filename = "./data/" + str(L_size) + "-" + str(T_total) + ".dat"
     if os.path.exists(filename):
         if input("file with the name exists; overwrite? y/n").lower() == 'y':
@@ -122,4 +161,4 @@ if __name__ == "__main__":
     else:
         with open(filename, 'wb+') as file:
             pickle.dump([avalanche_size_arr, height_time_arr, overflow_reached], file)
-    
+    """

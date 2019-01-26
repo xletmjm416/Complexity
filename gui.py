@@ -14,7 +14,7 @@ import oslo
 class Application(tk.Frame):
     def __init__(self, master=None):
         super().__init__(master)
-        self.modelframe = ModelFrame(self)
+        self.modelframe = ModelFrame(self, L_size=16, mode='slopes')
         self.modelframe.pack(side="top")
         
         self.drive = tk.Button(self, text="Drive", command=self.drive_event)
